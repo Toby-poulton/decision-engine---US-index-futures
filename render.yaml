@@ -1,0 +1,21 @@
+# render.yaml
+# Deploy to Render: https://render.com/docs/infrastructure-as-code
+#
+# Push this file to your repo root, then connect the repo in the Render dashboard.
+# Render will detect render.yaml and auto-configure the service.
+
+services:
+  - type: web
+    name: signal-engine-api
+    env: python
+    region: oregon           # us-west-2; change to "frankfurt" for EU latency
+    plan: starter            # $7/month; upgrade to "standard" for more RAM/CPU
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2
+    healthCheckPath: /health  # Render pings this; returns 200 = healthy
+    autoDeploy: true          # redeploy automatically on git push
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: PYTHONDONTWRITEBYTECODE
+        value: "1"
